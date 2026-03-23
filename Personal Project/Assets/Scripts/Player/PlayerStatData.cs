@@ -9,7 +9,8 @@ public class PlayerStatData : ScriptableObject
     public GameObject characterPrefab; 
 
     [Header("전투 능력치")]
-    public float maxHealth = 100f; 
+    public float maxHealth = 100f;
+    public float attackPower = 5f;
     public float moveSpeed = 5f;   
     public float armor = 0f;      
     public float magnetRange = 1f; 

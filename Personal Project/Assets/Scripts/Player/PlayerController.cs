@@ -69,6 +69,19 @@ public class PlayerController : MonoBehaviour
         {
             currentVisual = Instantiate(data.characterPrefab, transform);
             currentVisual.transform.localPosition = Vector2.zero;
+            
+            Weapon weapon = currentVisual.GetComponentInChildren<Weapon>();
+            
+            // 스탯을 넘겨주고 초기화
+            if (weapon != null)
+            {
+                weapon.Setup(data);
+                Debug.Log($"{data.characterName} 캐릭터의 무기 세팅이 완료되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning($"{data.characterName} 프리팹에 Weapon 컴포넌트가 없습니다!");
+            }
         }
     }
 
