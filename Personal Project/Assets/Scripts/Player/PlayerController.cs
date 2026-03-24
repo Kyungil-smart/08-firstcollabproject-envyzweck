@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     private GameObject currentVisual;
     private bool isFacingRight = true;
     
+    // 바라보는 방향을 vector값으로 변환
+    public Vector2 CurrentLookDirection => isFacingRight ? Vector2.right : Vector2.left;
+    
     private InputSystem_Actions controls;
 
     void Awake()
@@ -20,7 +23,6 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        // 벽 뚫기 방지
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; 
         
         controls = new InputSystem_Actions();
@@ -31,18 +33,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // 입력 시스템 활성화/비활성화 (메모리 관리 및 최적화)
     private void OnEnable()
     {
         controls.Enable();
-        // C# 이벤트 연결 _ Move 액션이 일어날 때 불러오기
         controls.Player.Move.performed += OnMovePerformed;
         controls.Player.Move.canceled += OnMoveCanceled;
     }
 
     private void OnDisable()
     {
-        // 이벤트 해제 (메모리 누수 방지)
         controls.Player.Move.performed -= OnMovePerformed;
         controls.Player.Move.canceled -= OnMoveCanceled;
         controls.Disable();
@@ -72,10 +71,10 @@ public class PlayerController : MonoBehaviour
             
             Weapon weapon = currentVisual.GetComponentInChildren<Weapon>();
             
-            // 스탯을 넘겨주고 초기화
             if (weapon != null)
             {
-                weapon.Setup(data);
+                // 적이 주변에 없을때 this로 방향파악
+                weapon.Setup(data, this);
                 Debug.Log($"{data.characterName} 캐릭터의 무기 세팅이 완료되었습니다.");
             }
             else
@@ -87,8 +86,9 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 물리 연산 최적화: linearVelocity 직접 대입
         rb.linearVelocity = moveInput * currentMoveSpeed;
+        
+        // 이동 입력이 있을 때만 Flip 체크
         if (moveInput.x != 0)
         {
             Flip();
@@ -104,7 +104,7 @@ public class PlayerController : MonoBehaviour
             if (currentVisual != null)
             {
                 Vector3 scale = currentVisual.transform.localScale;
-                scale.x *= -1;
+                scale.x = isFacingRight ? 1f : -1f;
                 currentVisual.transform.localScale = scale;
             }
         }

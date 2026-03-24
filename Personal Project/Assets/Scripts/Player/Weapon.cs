@@ -6,23 +6,29 @@ public class Weapon : MonoBehaviour
     [Header("Data References")]
     [SerializeField] private WeaponData weaponData; 
     private PlayerStatData playerStat;               
+    private PlayerController playerController;
+
+    [Header("Targeting Settings")]
+    [SerializeField] private float detectionRadius = 5f; 
+    [SerializeField] private LayerMask enemyLayer;       
 
     private IObjectPool<Projectile> pool;
     private float nextFireTime;
-
-    // PlayerController에서 호출하여 초기화
-    public void Setup(PlayerStatData stat)
+    private Collider2D[] detectionResults = new Collider2D[10];
+    
+    public void Setup(PlayerStatData stat, PlayerController controller)
     {
         playerStat = stat;
+        playerController = controller;
         
         if (pool == null)
         {
             pool = new ObjectPool<Projectile>(
                 createFunc: CreateProjectile,
-                actionOnGet: OnGetFromPool,      
-                actionOnRelease: OnReleaseToPool, 
-                actionOnDestroy: OnDestroyObject, 
-                collectionCheck: true, 
+                actionOnGet: (p) => p.OnSpawn(),      
+                actionOnRelease: (p) => p.OnDespawn(), 
+                actionOnDestroy: (p) => Destroy(p.gameObject), 
+                collectionCheck: false, 
                 defaultCapacity: 20, 
                 maxSize: 100
             );
@@ -42,54 +48,65 @@ public class Weapon : MonoBehaviour
 
     private void Fire()
     {
-        float finalDamage = weaponData.baseDamage + playerStat.attackPower; 
+        if (playerController == null) return;
 
-        // 풀에서 투사체 가져오기 (OnGetFromPool이 자동 실행)
+        Transform target = GetNearestEnemy();
+        Vector2 fireDirection = playerController.CurrentLookDirection;
+
+        if (target != null)
+        {
+            fireDirection = (target.position - transform.position).normalized;
+        }
+        
+        float finalDamage = weaponData.baseDamage + playerStat.attackPower; 
         Projectile p = pool.Get();
         
         if (p != null)
         {
             p.transform.position = transform.position;
-            // 투사체 초기화 로직 실행
-            p.Init(Vector2.right, weaponData.baseProjectileSpeed, finalDamage, weaponData.baseDuration);
+            p.Init(fireDirection, weaponData.baseProjectileSpeed, finalDamage, weaponData.baseDuration);
         }
     }
 
-    #region Object Pooling Callbacks (Interface 기반)
+    private Transform GetNearestEnemy()
+    {
+        ContactFilter2D filter = new ContactFilter2D();
+        filter.SetLayerMask(enemyLayer);
+        filter.useTriggers = true;
 
+        //OverlapCircle로 범위안의 콜라이더 찾기
+        int count = Physics2D.OverlapCircle(transform.position, detectionRadius, filter, detectionResults);
+
+        if (count == 0) return null;
+
+        Transform nearest = null;
+        float minDistance = float.MaxValue;
+
+        for (int i = 0; i < count; i++)
+        {
+            float distance = Vector2.Distance(transform.position, detectionResults[i].transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = detectionResults[i].transform;
+            }
+        }
+
+        return nearest;
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
+    
     private Projectile CreateProjectile()
     {
-        if (weaponData.projectilePrefab == null)
-        {
-            Debug.LogError($"{weaponData.weaponName}에 투사체 프리팹이 없습니다!");
-            return null;
-        }
-
+        if (weaponData.projectilePrefab == null) return null;
         GameObject go = Instantiate(weaponData.projectilePrefab);
         Projectile p = go.GetComponent<Projectile>();
-        
-        if (p != null)
-        {
-            // IPoolable 규칙에 따라 소속 풀을 알려줌
-            p.SetPool(pool);
-        }
+        if (p != null) p.SetPool(pool);
         return p;
     }
-    
-    private void OnGetFromPool(Projectile p)
-    {
-        p.OnSpawn();
-    }
-    
-    private void OnReleaseToPool(Projectile p)
-    {
-        p.OnDespawn();
-    }
-
-    private void OnDestroyObject(Projectile p)
-    {
-        Destroy(p.gameObject);
-    }
-
-    #endregion
 }

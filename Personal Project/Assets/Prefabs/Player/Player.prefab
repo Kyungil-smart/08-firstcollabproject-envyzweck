@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1816246492662566982}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,4 +110,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ed2053ae4f32d04780bb68c0551fc07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  currentCharacterData: {fileID: 11400000, guid: 4b10af47b6a28e54d96583b3333bb717, type: 2}
+  currentCharacterData: {fileID: 11400000, guid: 8053311d02ebd69448381560a30a5794, type: 2}
