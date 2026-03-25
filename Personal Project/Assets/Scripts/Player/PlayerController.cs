@@ -7,15 +7,20 @@ public class PlayerController : MonoBehaviour
     [Header("Character Selection")]
     [SerializeField] private PlayerStatData currentCharacterData;
 
+    [Header("UI Prefabs")]
+    [SerializeField] private HealthBarUI healthBarPrefab;
+    private HealthBarUI currentHealthBar;
+    
+    private float currentHealth;
+    private bool isDead = false;
+
     private float currentMoveSpeed;
     private Vector2 moveInput;
     private Rigidbody2D rb;
     private GameObject currentVisual;
     private bool isFacingRight = true;
     
-    // 바라보는 방향을 vector값으로 변환
     public Vector2 CurrentLookDirection => isFacingRight ? Vector2.right : Vector2.left;
-    
     private InputSystem_Actions controls;
 
     void Awake()
@@ -42,13 +47,17 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        controls.Player.Move.performed -= OnMovePerformed;
-        controls.Player.Move.canceled -= OnMoveCanceled;
-        controls.Disable();
+        if (controls != null)
+        {
+            controls.Player.Move.performed -= OnMovePerformed;
+            controls.Player.Move.canceled -= OnMoveCanceled;
+            controls.Disable();
+        }
     }
 
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
+        if (isDead) return;
         moveInput = context.ReadValue<Vector2>();
     }
 
@@ -62,7 +71,20 @@ public class PlayerController : MonoBehaviour
         if (data == null) return;
         currentCharacterData = data;
         currentMoveSpeed = data.moveSpeed;
+        currentHealth = data.maxHealth;
+        isDead = false;
+        
+        if (healthBarPrefab != null && currentHealthBar == null)
+        {
+            currentHealthBar = Instantiate(healthBarPrefab);
+        }
 
+        if (currentHealthBar != null)
+        {
+            currentHealthBar.gameObject.SetActive(true);
+            currentHealthBar.Initialize(this.transform, data.maxHealth);
+        }
+        
         if (currentVisual != null) Destroy(currentVisual);
         if (data.characterPrefab != null)
         {
@@ -70,29 +92,22 @@ public class PlayerController : MonoBehaviour
             currentVisual.transform.localPosition = Vector2.zero;
             
             Weapon weapon = currentVisual.GetComponentInChildren<Weapon>();
-            
             if (weapon != null)
             {
-                // 적이 주변에 없을때 this로 방향파악
                 weapon.Setup(data, this);
-                Debug.Log($"{data.characterName} 캐릭터의 무기 세팅이 완료되었습니다.");
-            }
-            else
-            {
-                Debug.LogWarning($"{data.characterName} 프리팹에 Weapon 컴포넌트가 없습니다!");
             }
         }
     }
 
     void FixedUpdate()
     {
-        rb.linearVelocity = moveInput * currentMoveSpeed;
-        
-        // 이동 입력이 있을 때만 Flip 체크
-        if (moveInput.x != 0)
+        if (isDead) 
         {
-            Flip();
+            rb.linearVelocity = Vector2.zero;
+            return;
         }
+        rb.linearVelocity = moveInput * currentMoveSpeed;
+        if (moveInput.x != 0) Flip();
     }
 
     private void Flip()
@@ -100,7 +115,6 @@ public class PlayerController : MonoBehaviour
         if ((moveInput.x > 0 && !isFacingRight) || (moveInput.x < 0 && isFacingRight))
         {
             isFacingRight = !isFacingRight;
-
             if (currentVisual != null)
             {
                 Vector3 scale = currentVisual.transform.localScale;
@@ -108,5 +122,40 @@ public class PlayerController : MonoBehaviour
                 currentVisual.transform.localScale = scale;
             }
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (isDead) return;
+        
+        Debug.Log($"[TakeDamage] 호출됨! 들어온 데미지: {damage}");
+        
+        currentHealth -= damage;
+        
+        Debug.Log($"[HP 상황] 현재 체력: {currentHealth} / 최대 체력: {currentCharacterData.maxHealth}");
+        
+        if (currentHealthBar != null)
+        {
+            currentHealthBar.UpdateHealth(currentHealth);
+        }
+        else
+        {
+            Debug.LogWarning("[UI Warning] currentHealthBar가 null입니다! UI 업데이트 불가.");
+        }
+
+        if (currentHealth <= 0)
+        {
+            // 마이너스 방지
+            currentHealth = 0;
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        moveInput = Vector2.zero;
+        if (currentHealthBar != null) currentHealthBar.gameObject.SetActive(false);
+        Debug.Log("플레이어 사망!");
     }
 }

@@ -17,4 +17,5 @@ MonoBehaviour:
   baseDamage: 10
   baseFireRate: 1
   baseProjectileSpeed: 10
-  baseDuration: 2
+  baseDuration: 1
+  baseDetectionRange: 4

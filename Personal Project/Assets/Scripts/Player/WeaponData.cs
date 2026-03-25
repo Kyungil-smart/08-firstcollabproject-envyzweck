@@ -11,4 +11,5 @@ public class WeaponData : ScriptableObject
     public float baseFireRate = 1.0f;
     public float baseProjectileSpeed = 10f;
     public float baseDuration = 2f;
+    public float baseDetectionRange = 5f;
 }

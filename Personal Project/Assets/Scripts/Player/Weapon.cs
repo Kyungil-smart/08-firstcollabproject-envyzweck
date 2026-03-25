@@ -9,7 +9,6 @@ public class Weapon : MonoBehaviour
     private PlayerController playerController;
 
     [Header("Targeting Settings")]
-    [SerializeField] private float detectionRadius = 5f; 
     [SerializeField] private LayerMask enemyLayer;       
 
     private IObjectPool<Projectile> pool;
@@ -39,6 +38,7 @@ public class Weapon : MonoBehaviour
     {
         if (playerStat == null || weaponData == null) return;
 
+        // 발사 간격 체크 (FireRate)
         if (Time.time >= nextFireTime)
         {
             Fire();
@@ -50,9 +50,13 @@ public class Weapon : MonoBehaviour
     {
         if (playerController == null) return;
 
+        // WeaponData에 설정된 범위를 기준으로 적을 찾습니다.
         Transform target = GetNearestEnemy();
+        
+        // 기본적으로 플레이어가 바라보는 방향으로 설정
         Vector2 fireDirection = playerController.CurrentLookDirection;
 
+        // 사거리 안에 적이 있다면 해당 적의 방향으로 발사
         if (target != null)
         {
             fireDirection = (target.position - transform.position).normalized;
@@ -64,18 +68,22 @@ public class Weapon : MonoBehaviour
         if (p != null)
         {
             p.transform.position = transform.position;
+            // Init 호출 시 방향, 속도, 데미지, 지속시간 전달
             p.Init(fireDirection, weaponData.baseProjectileSpeed, finalDamage, weaponData.baseDuration);
         }
     }
 
     private Transform GetNearestEnemy()
     {
+        if (weaponData == null) return null;
+
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(enemyLayer);
         filter.useTriggers = true;
 
-        //OverlapCircle로 범위안의 콜라이더 찾기
-        int count = Physics2D.OverlapCircle(transform.position, detectionRadius, filter, detectionResults);
+        // [중요] WeaponData에서 설정한 범위를 사용합니다.
+        float range = weaponData.baseDetectionRange;
+        int count = Physics2D.OverlapCircle(transform.position, range, filter, detectionResults);
 
         if (count == 0) return null;
 
@@ -95,10 +103,14 @@ public class Weapon : MonoBehaviour
         return nearest;
     }
     
+    // 에디터에서 범위를 시각적으로 확인하기 위한 Gizmos
     private void OnDrawGizmosSelected()
     {
+        if (weaponData == null) return;
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        // WeaponData의 범위를 빨간색 원으로 그려줍니다.
+        Gizmos.DrawWireSphere(transform.position, weaponData.baseDetectionRange);
     }
     
     private Projectile CreateProjectile()

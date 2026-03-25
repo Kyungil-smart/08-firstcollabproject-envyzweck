@@ -32,6 +32,7 @@ public class Projectile : MonoBehaviour, IPoolable<Projectile>
         damage = dmg;
         duration = dur;
         transform.right = direction;
+        
     }
 
     void Update()
