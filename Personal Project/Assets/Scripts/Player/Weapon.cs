@@ -49,8 +49,7 @@ public class Weapon : MonoBehaviour
     private void Fire()
     {
         if (playerController == null) return;
-
-        // WeaponData에 설정된 범위를 기준으로 적을 찾습니다.
+        
         Transform target = GetNearestEnemy();
         
         // 기본적으로 플레이어가 바라보는 방향으로 설정
@@ -80,8 +79,7 @@ public class Weapon : MonoBehaviour
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(enemyLayer);
         filter.useTriggers = true;
-
-        // [중요] WeaponData에서 설정한 범위를 사용합니다.
+        
         float range = weaponData.baseDetectionRange;
         int count = Physics2D.OverlapCircle(transform.position, range, filter, detectionResults);
 

@@ -8,7 +8,6 @@ public class Enemy : MonoBehaviour, IDamageable, IPoolable<Enemy>
     [SerializeField] private EnemyStatData statData;
 
     [Header("공격세팅")]
-    [SerializeField] private float attackCooldown = 1f;
     private float nextAttackTime;
 
     private float currentHealth;
@@ -116,7 +115,7 @@ public class Enemy : MonoBehaviour, IDamageable, IPoolable<Enemy>
             {
                 playerCtrl.TakeDamage(statData.damage);
                 
-                nextAttackTime = Time.time + attackCooldown;
+                nextAttackTime = Time.time + statData.attackCooldown;
                 Debug.Log($"[Enemy] {statData.enemyName}이(가) 플레이어에게 {statData.damage} 데미지를 입힘!");
             }
         }

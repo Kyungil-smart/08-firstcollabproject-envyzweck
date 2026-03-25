@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   weaponData: {fileID: 11400000, guid: e83d65503b0f3354aababce469a20d53, type: 2}
-  detectionRadius: 10
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -129,7 +128,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4723107735738678597, guid: bcf82671f46c59a4fba7c59cc659a9ef, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
