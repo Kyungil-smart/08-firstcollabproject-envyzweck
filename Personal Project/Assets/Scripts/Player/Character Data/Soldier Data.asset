@@ -16,7 +16,9 @@ MonoBehaviour:
   characterIcon: {fileID: 0}
   characterPrefab: {fileID: 699067322826029485, guid: 31d8dd04155e8b64ca0c4e9baae0739a, type: 3}
   maxHealth: 100
+  attackPower: 5
   moveSpeed: 5
+  attackSpeedMultiplier: 1
   armor: 0
-  magnetRange: 1
+  magnetRange: 3
   startingWeaponName: 

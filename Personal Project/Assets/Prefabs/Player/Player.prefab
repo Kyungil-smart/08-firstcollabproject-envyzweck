@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1441179522586506243}
   - component: {fileID: 4176193134610957072}
   - component: {fileID: 1816246492662566982}
+  - component: {fileID: -9066043385702672487}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -113,6 +114,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   currentCharacterData: {fileID: 11400000, guid: 8053311d02ebd69448381560a30a5794, type: 2}
   healthBarPrefab: {fileID: -9084020205997779050, guid: 4f40df5be9117e3439b69944257b115b, type: 3}
+--- !u!114 &-9066043385702672487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4024942430959889363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d96a5c6793122e45a333345f0308ef0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  level: 1
+  currentExp: 0
+  maxExp: 100
+  magnetRange: 0
+  onLevelUp:
+    m_PersistentCalls:
+      m_Calls: []
+  onExpChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7498228828372009430
 GameObject:
   m_ObjectHideFlags: 0

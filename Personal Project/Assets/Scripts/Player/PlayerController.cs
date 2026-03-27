@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
         
         controls = new InputSystem_Actions();
 
+        // 데이터 있으면 초기화
         if (currentCharacterData != null)
         {
             InitializeCharacter(currentCharacterData);
@@ -97,6 +98,17 @@ public class PlayerController : MonoBehaviour
                 weapon.Setup(data, this);
             }
         }
+        // 자석 범위 
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+        {
+            stats.magnetRange = data.magnetRange;
+            Debug.Log($"[Sync Success] PlayerStats MagnetRange: {stats.magnetRange}");
+        }
+        else
+        {
+            Debug.LogError("Player 오브젝트에 PlayerStats 컴포넌트가 없습니다!");
+        }
     }
 
     void FixedUpdate()
@@ -127,28 +139,9 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(float damage)
     {
         if (isDead) return;
-        
-        Debug.Log($"[TakeDamage] 호출됨! 들어온 데미지: {damage}");
-        
         currentHealth -= damage;
-        
-        Debug.Log($"[HP 상황] 현재 체력: {currentHealth} / 최대 체력: {currentCharacterData.maxHealth}");
-        
-        if (currentHealthBar != null)
-        {
-            currentHealthBar.UpdateHealth(currentHealth);
-        }
-        else
-        {
-            Debug.LogWarning("[UI Warning] currentHealthBar가 null입니다! UI 업데이트 불가.");
-        }
-
-        if (currentHealth <= 0)
-        {
-            // 마이너스 방지
-            currentHealth = 0;
-            Die();
-        }
+        if (currentHealthBar != null) currentHealthBar.UpdateHealth(currentHealth);
+        if (currentHealth <= 0) { currentHealth = 0; Die(); }
     }
 
     private void Die()

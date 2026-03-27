@@ -16,5 +16,5 @@ MonoBehaviour:
   maxHealth: 20
   moveSpeed: 3
   damage: 5
-  expValue: 10
-  visualPrefab: {fileID: 1679720138563541712, guid: a3e7811035f9a52499b4dcff0784c556, type: 3}
+  attackCooldown: 1
+  expValue: 5
